@@ -1,0 +1,75 @@
+def segGraph(segNo,segAmount,theta_core_pos,ang):
+    max_graph_size=segAmount
+    radius=2000
+    theta=0
+    ang_seg=360/segAmount
+    	
+    pos_matrix=numpy.zeros((2,max_graph_size))
+    adjacency_matrix=numpy.zeros((max_graph_size,max_graph_size))
+    
+    pos_matrix[0,0]=theta_core_pos[0,segNo]
+    pos_matrix[1,0]=theta_core_pos[1,segNo]
+    
+    for i in range(1,max_graph_size):
+    	r_radius=random.random()
+    	temp_radius=r_radius*radius
+    	
+    	r_angular=random.random()
+    	temp_angular=r_angular*ang_seg+ang-ang_seg
+    	
+    	x=temp_radius*math.cos(temp_angular)
+    	y=temp_radius*math.sin(temp_angular)
+    	
+    	pos_matrix[0,i]=x
+    	pos_matrix[1,i]=y
+    	
+    	
+    
+    for i in range(max_graph_size-1):
+    	for j in range(i+1,max_graph_size,1):
+    	    dice=random.random()
+    	    if dice<0.7:
+    	    	adjacency_matrix[i,j]=1
+    	    	adjacency_matrix[j,i]=1
+    
+    
+    return pos_matrix, adjacency_matrix
+    
+def ClusterComputing(opt):
+    max_graph_size=6
+    theta_core=[30,90,150,210,270,330]
+    theta_bound=[60,120,180,240,300,360]
+    theta_core_radius=1000
+    theta_core_pos=numpy.zeros((2,max_graph_size))
+    pi=3.1415926
+    
+    for i in range(max_graph_size):
+    	temp=theta_core[i]*2*pi/360
+    	theta_core[i]=temp
+    
+    for i in range(max_graph_size):
+    	x=theta_core_radius*math.cos(theta_core[i])
+    	y=theta_core_radius*math.sin(theta_core[i])
+    	theta_core_pos[0,i]=x
+    	theta_core_pos[1,i]=y
+    
+    segAmount = 6
+    
+    print("theta_core_pos is: "+str(theta_core_pos))
+    flowm=numpy.zeros(segAmount)
+    
+    routing_SOL={}
+    for i in range(segAmount):
+        ang=theta_bound[i]
+        pos_matrix,adjacency_matrix=segGraph(i,segAmount,theta_core_pos,ang)
+        
+        for j in range(1,segAmount):
+            dice=random.random()
+            if dice<0.5:
+            	flowm[j]=1
+        
+        #print("pos_matrix is:"+str(pos_matrix))
+        #print("adjacency_matrix is:"+str(adjacency_matrix))
+        #pos_matrix=pos_matrix.transpose()
+        routing_sol=SolveBundle(flowm,pos_matrix,adjacency_matrix,opt)
+        print(routing_sol)
